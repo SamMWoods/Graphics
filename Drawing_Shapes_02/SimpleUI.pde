@@ -1043,7 +1043,7 @@ class Slider extends Widget{
     if(  mouseEventType.equals("mousePressed") || mouseEventType.equals("mouseReleased") || mouseEventType.equals("mouseDragged") ){
       mouseEntered = true;
       float val = getSliderValueAtMousePos(x);
-      //println("slider val",val);
+      println("slider val",val);
       setSliderValue(val);
       UIEventData uied = new UIEventData(UIManagerName, UIComponentType, UILabel, mouseEventType, x,y);
       uied.sliderValue = val;
@@ -1402,4 +1402,47 @@ public void adjust_contrast(int[] lut){
       }
 
     }
+}
+
+float changeBrightness(float v, float brightnessLevel){
+  
+  return v*brightnessLevel;
+}
+
+float contrast(float v, float contrastLevel){
+  // contrast
+
+  float f = 1.0 / (1 + exp(contrastLevel * (v  - 0.5))); //contrastUp
+  //float f = 1.0 / (1 + exp(-8 * (v  - 0.5))); //contrastDown
+  
+ 
+  return f;
+}
+
+
+PImage applyPointProcessing(int[] redLUT, int[] greenLUT, int[] blueLUT, PImage inputImage){
+  PImage outputImage = createImage(inputImage.width,inputImage.height,RGB);
+  
+  
+  inputImage.loadPixels();
+  outputImage.loadPixels();
+  int numPixels = inputImage.width*inputImage.height;
+  for(int n = 0; n < numPixels; n++){
+    
+    color c = inputImage.pixels[n];
+    
+    int r = (int)red(c);
+    int g = (int)green(c);
+    int b = (int)blue(c);
+    
+    r = redLUT[r];
+    g = greenLUT[g];
+    b = blueLUT[b];
+    
+    outputImage.pixels[n] = color(r,g,b);
+    
+    
+  }
+  
+  return outputImage;
 }

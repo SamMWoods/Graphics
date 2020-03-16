@@ -35,6 +35,10 @@ void setup() {
   
   myUI.addPlainButton("Delete", 5, 210);
   
+  myUI.addSlider("Brightness", 85, 565);
+  
+  myUI.addSlider("Contrast", 200, 565);
+  
   myUI.addPlainButton("Undo", 5, 530);
   
   myUI.addPlainButton("Quit", 5, 565);
@@ -47,7 +51,7 @@ void setup() {
   toolMode = rectButton.UILabel;
 
   //Size of Canvas
-  myUI.addCanvas(80,0,600,600);
+  myUI.addCanvas(80,0,600,560);
   
 }
 
@@ -214,6 +218,49 @@ void handleUIEvent(UIEventData eventData){
      int[] down = create_contrast_lut(0.4);
      adjust_contrast(down); 
   }
+  
+    if( toolMode.equals("Brightness") ) {
+    
+    outputImage = myImage.copy();
+    myImage.loadPixels();
+    
+    float SliderValue = myUI.getSliderValue("Brightness");
+    //int brt = (int)(eventData.sliderValue * 255);
+    System.out.println(SliderValue);
+    
+    
+        int[] lut = new int[256];
+        for(int n = 0; n < 256; n++) {
+          
+          float px = n/255.0f;  // p ranges between 0...1
+          float val = changeBrightness(px,SliderValue);
+          lut[n] = (int)(val*255);
+        }
+        outputImage = applyPointProcessing(lut,lut,lut, myImage);
+        outputImage.updatePixels();
+   }
+   
+        if( toolMode.equals("Contrast") ) {
+    
+         outputImage = myImage.copy();
+          myImage.loadPixels();
+          
+          float SliderValue = myUI.getSliderValue("Contrast");
+          SliderValue = SliderValue * -10;
+          System.out.println(SliderValue);
+          
+              int[] lut = new int[256];
+              for(int n = 0; n < 256; n++) {
+                
+                float v = n/255.0f;  // p ranges between 0...1
+                float val = contrast(v,SliderValue);
+                lut[n] = (int)(val*255);
+              }
+            outputImage = applyPointProcessing(lut,lut,lut, myImage);
+            SliderValue = 0;
+   }
+  
+  
   //?
   if(eventData.uiComponentType.equals("RadioButton")){
     toolMode = eventData.uiLabel;
@@ -223,6 +270,11 @@ void handleUIEvent(UIEventData eventData){
    if(eventData.uiComponentType.equals("ButtonBaseClass")){
     toolMode = eventData.uiLabel;
   }
+  
+  if(eventData.uiComponentType.equals("Slider")){
+    toolMode = eventData.uiLabel;
+  }
+  
   
 
   // only canvas events below here!
@@ -254,5 +306,6 @@ void handleUIEvent(UIEventData eventData){
   if( toolMode.equals("Quit") ) {    
      exit();
   }
+
 
 }
