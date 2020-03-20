@@ -9,7 +9,7 @@ SimpleUI myUI;
 DrawingList drawingList;
 
 String toolMode = "";
-String[] menu1Items =  { "Black&White", "Grey", "Inverse", "Blur", "Sharpen", "Edge","GaussianBlur", "Up Contrast","Down Contrast" };
+String[] menu1Items =  { "Black&White", "Grey", "Inverse", "Blur", "Sharpen", "Edge","GaussianBlur" };
 int imageWidth;
 int imageHeight;
 int newImageWidth;
@@ -39,7 +39,7 @@ void setup() {
   
   myUI.addSlider("Contrast", 200, 565);
   
-  myUI.addPlainButton("Undo", 5, 530);
+  myUI.addPlainButton("Commit", 5, 530);
   
   myUI.addPlainButton("Quit", 5, 565);
   
@@ -204,25 +204,11 @@ void handleUIEvent(UIEventData eventData){
     }
   }
 }
-
-  if (eventData.menuItem.equals("Up Contrast")) {
-     outputImage = myImage.copy();
-     myImage.loadPixels();
-     int[] up = create_contrast_lut(0.5);
-     adjust_contrast(up); 
-  }
- 
-  if (eventData.menuItem.equals("Down Contrast")) {
-     outputImage = myImage.copy();
-     myImage.loadPixels();
-     int[] down = create_contrast_lut(0.4);
-     adjust_contrast(down); 
-  }
   
     if( toolMode.equals("Brightness") ) {
     
     outputImage = myImage.copy();
-    myImage.loadPixels();
+    //myImage.loadPixels();
     
     float SliderValue = myUI.getSliderValue("Brightness");
     //int brt = (int)(eventData.sliderValue * 255);
@@ -237,13 +223,13 @@ void handleUIEvent(UIEventData eventData){
           lut[n] = (int)(val*255);
         }
         outputImage = applyPointProcessing(lut,lut,lut, myImage);
-        outputImage.updatePixels();
+        outputImage.loadPixels();
    }
    
         if( toolMode.equals("Contrast") ) {
     
-         outputImage = myImage.copy();
-          myImage.loadPixels();
+          outputImage = myImage.copy();
+          //myImage.loadPixels();
           
           float SliderValue = myUI.getSliderValue("Contrast");
           SliderValue = SliderValue * -10;
@@ -257,7 +243,7 @@ void handleUIEvent(UIEventData eventData){
                 lut[n] = (int)(val*255);
               }
             outputImage = applyPointProcessing(lut,lut,lut, myImage);
-            SliderValue = 0;
+            outputImage.loadPixels();
    }
   
   
@@ -299,8 +285,8 @@ void handleUIEvent(UIEventData eventData){
       drawingList.trySelect(eventData.mouseEventType, p);
     }
     
-  if( toolMode.equals("Undo") ) {
-    outputImage = myImage;
+  if( toolMode.equals("Commit") ) {
+     myImage = outputImage;
   }
     
   if( toolMode.equals("Quit") ) {    
