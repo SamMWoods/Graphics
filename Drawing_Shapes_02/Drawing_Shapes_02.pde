@@ -333,11 +333,18 @@ public class ColourPicker extends PApplet {
     pickColor();
   }
   
+  void exit()
+  {
+    dispose();
+  }
+  
   void pickColor() {
   if (mousePressed == true) {
   //find the color under the mouse pointer//
   theColor = get(mouseX, mouseY);
   }
   //draw a box with the selected color//
+  
+  
 };
 }
