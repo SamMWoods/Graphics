@@ -5,6 +5,9 @@
 //
 PImage myImage;
 PImage outputImage;
+PImage mySecondImage;
+color theColor;
+
 SimpleUI myUI;
 DrawingList drawingList;
 
@@ -16,11 +19,12 @@ int newImageWidth;
 int NewIimageHeight;
 String fileName;
 
-void setup() {
+void settings() {
   size(680,600);
   //surface.setResizable(true);
   
-  
+      mySecondImage = loadImage("ColourMap.png");
+      
   myUI = new SimpleUI();
   drawingList = new DrawingList();
   
@@ -38,6 +42,8 @@ void setup() {
   myUI.addSlider("Brightness", 85, 565);
   
   myUI.addSlider("Contrast", 200, 565);
+  
+  myUI.addPlainButton("Colour Picker", 5, 495);
   
   myUI.addPlainButton("Commit", 5, 530);
   
@@ -67,6 +73,11 @@ void draw() {
   if(outputImage != null){
     image(outputImage, 80, 0);
   } 
+ 
+   
+  noStroke();
+  fill(theColor);
+  rect(310, 565, 30, 30);
  
  drawingList.drawMe();
  
@@ -125,6 +136,8 @@ void handleUIEvent(UIEventData eventData){
   if(eventData.eventIsFromWidget("fileSaveDialog")){
     outputImage.save(eventData.fileSelection);
   }
+  
+  
   
     if (eventData.menuItem.equals("Black&White")) {
       outputImage = myImage.copy();
@@ -285,6 +298,14 @@ void handleUIEvent(UIEventData eventData){
       drawingList.trySelect(eventData.mouseEventType, p);
     }
     
+  if( toolMode.equals("Colour Picker") ) {
+      String[] args = {"YourSketchNameHere"};
+      ColourPicker sa = new ColourPicker();
+      PApplet.runSketch(args, sa);
+      toolMode = " ";
+  }
+    
+   
   if( toolMode.equals("Commit") ) {
      myImage = outputImage;
   }
@@ -292,6 +313,31 @@ void handleUIEvent(UIEventData eventData){
   if( toolMode.equals("Quit") ) {    
      exit();
   }
+  
 
 
+}
+
+public class ColourPicker extends PApplet {
+ 
+  public void settings() {
+    //load image into the PImage object, notice that the image is not yet drawn//
+    imageWidth = mySecondImage.width;
+    imageHeight = mySecondImage.height;
+  size(imageWidth, imageHeight);
+  }
+  public void draw() {
+    background(0);
+    image(mySecondImage, 0, 0);
+    //run the color picker function//
+    pickColor();
+  }
+  
+  void pickColor() {
+  if (mousePressed == true) {
+  //find the color under the mouse pointer//
+  theColor = get(mouseX, mouseY);
+  }
+  //draw a box with the selected color//
+};
 }
