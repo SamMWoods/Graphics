@@ -15,6 +15,10 @@ class DrawnShape {
   // Rect .....
   String shapeType;
 
+  public  int lineThickness =1;
+  public boolean filled = true;
+  public color fillColor = color(127, 127, 127);
+
   // used to define the shape bounds during drawing and after
   PVector shapeStartPoint, shapeEndPoint;
 
@@ -64,9 +68,11 @@ class DrawnShape {
 
     if (this.isSelected) {
         setSelectedDrawingStyle();
-      }else{
+        if (filled == true) fill(fillColor);
+        if (filled == false) noFill();
+      }
+      else{
         setDefaultDrawingStyle();
-        
       }
     
     float x1 = this.shapeStartPoint.x;
@@ -79,20 +85,29 @@ class DrawnShape {
     if ( shapeType.equals("draw rect")) rect(x1, y1, w, h);
     if ( shapeType.equals("draw circle")) ellipse(x1+ w/2, y1 + h/2, w, h);
     if ( shapeType.equals("draw line")) line(x1, y1, x2, y2);
+    
 
   }
 
   void setSelectedDrawingStyle() {
-    strokeWeight(2);
-    stroke(0, 0, 0);
+    strokeWeight(lineThickness + 1);
+    stroke(255, 0, 0);
     fill(255, 100, 100);
     
   }
 
   void setDefaultDrawingStyle() {
-    strokeWeight(1);
-    stroke(0, 0, 0);
-    fill(127, 127, 127);
+    strokeWeight(lineThickness);
+    stroke(fillColor);
+    fill(fillColor);
+  }
+  
+   public void changeCholor(color newColor){
+    fillColor = newColor;
+  }
+  
+  public void ChangeStroke(int Stroke){
+    lineThickness = Stroke;
   }
 }     // end DrawnShape
 
@@ -129,6 +144,24 @@ class DrawingList {
       if(s.isSelected){
         shapeList.remove(s);
         break;
+       }
+     }
+   }
+   
+  //delete selected objects
+  public void fillShape(color theColor){
+    for(DrawnShape s : shapeList){
+      if(s.isSelected){
+        s.changeCholor(theColor);
+        break;
+       }
+     }
+   }
+   
+     public void lineWeight(int lineValue){
+    for(DrawnShape s : shapeList){
+      if(s.isSelected){
+        s.ChangeStroke(lineValue);
        }
      }
    }

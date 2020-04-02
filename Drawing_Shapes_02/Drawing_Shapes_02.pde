@@ -43,9 +43,13 @@ void settings() {
   
   myUI.addSlider("Contrast", 200, 565);
   
-  myUI.addPlainButton("Colour Picker", 5, 495);
+  myUI.addPlainButton("Colour Picker", 310, 565);
   
-  myUI.addPlainButton("Commit", 5, 530);
+  myUI.addPlainButton("Fill", 430, 565);
+  
+  myUI.addSlider("Line Weight", 510, 565);
+  
+  myUI.addPlainButton("RGB & Sat", 5, 530);
   
   myUI.addPlainButton("Quit", 5, 565);
   
@@ -77,7 +81,7 @@ void draw() {
    
   noStroke();
   fill(theColor);
-  rect(310, 565, 30, 30);
+  rect(390, 565, 30, 30);
  
  drawingList.drawMe();
  
@@ -88,7 +92,7 @@ void draw() {
 void handleUIEvent(UIEventData eventData){
   // here we just get the event to print its self
   // with "verbosity" set to 1, (1 = low, 3 = high, 0 = do not print anything)
-  eventData.print(2);
+  eventData.print(3);
   
 
   //////////////////////////////////////////////////
@@ -258,20 +262,66 @@ void handleUIEvent(UIEventData eventData){
             outputImage = applyPointProcessing(lut,lut,lut, myImage);
             outputImage.loadPixels();
    }
+    
+   if( toolMode.equals("RGB & Sat") ) {
+     
+     outputImage = myImage.copy();
+     myImage.loadPixels();
+     for (int y = 0; y < imageHeight; y++) {
+       for (int x = 0; x < imageWidth; x++){
+        
+        color thisPix = myImage.get(x,y);
+        int r = (int) (red(thisPix));
+        int g = (int) (green(thisPix));
+        int b = (int) (blue(thisPix));
+        
+        float[] hsv = RGBtoHSV(r,g,b);
+        float hue = hsv[0];
+        float sat = hsv[1];
+        float val = hsv[2];
+
+        hue += 30;
+        if( hue < 0 ) hue += 360;
+        if( hue > 360 ) hue -= 360;
+        
+        sat += 1;
+        if( sat < 0 ) sat += 0;
+        if( sat > 1 ) sat -= 1;
+        
+        val += 0.1;
+        if( val < 0 ) val += 1;
+        if( val > 1 ) val -= 0;
+        
+        color newRGB =   HSVtoRGB(hue,  sat,  val);
+        myImage.set(x,y, newRGB);
+        outputImage.set(x,y, newRGB);
+       }   
+     }
+  }
+
   
+  if( toolMode.equals("Line Weight") ) {
+    int lineValue = (int)(myUI.getSliderValue("Line Weight") * 10);
+    System.out.println(lineValue);
+    drawingList.lineWeight(lineValue);
+    
+  }
   
   //?
-  if(eventData.uiComponentType.equals("RadioButton")){
+  if(eventData.uiComponentType == "RadioButton"){
     toolMode = eventData.uiLabel;
+    return;
   }
   
   //?
    if(eventData.uiComponentType.equals("ButtonBaseClass")){
     toolMode = eventData.uiLabel;
+    return;
   }
   
   if(eventData.uiComponentType.equals("Slider")){
     toolMode = eventData.uiLabel;
+    return;
   }
   
   
@@ -291,6 +341,10 @@ void handleUIEvent(UIEventData eventData){
     drawingList.tryDelete();
     myUI.setRadioButtonOff("group1");
     }
+    
+  if( toolMode.equals("Fill") ) {    
+    drawingList.fillShape(theColor);
+    }
    
   // if the current tool is "select" then do this
   if( toolMode.equals("select") ) {   
@@ -306,9 +360,9 @@ void handleUIEvent(UIEventData eventData){
   }
     
    
-  if( toolMode.equals("Commit") ) {
-     myImage = outputImage;
-  }
+  //if( toolMode.equals("Commit") ) {
+  //   myImage = outputImage;
+  //}
     
   if( toolMode.equals("Quit") ) {    
      exit();
