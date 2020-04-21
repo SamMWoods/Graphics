@@ -20,7 +20,7 @@ int NewIimageHeight;
 String fileName;
 
 void settings() {
-  size(680,600);
+  size(680,640);
   //surface.setResizable(true);
   
       mySecondImage = loadImage("ColourMap.png");
@@ -34,6 +34,7 @@ void settings() {
   ButtonBaseClass  rectButton = myUI.addRadioButton("draw rect", 5, 70, "group1");
   myUI.addRadioButton("draw circle", 5, 105, "group1");
   myUI.addRadioButton("draw line", 5, 140, "group1");
+  myUI.addRadioButton("draw arc", 5, 450, "group1");
   
   myUI.addRadioButton("select", 5, 175, "group1");
   
@@ -41,7 +42,11 @@ void settings() {
   
   myUI.addSlider("Brightness", 85, 565);
   
+  myUI.addSlider("RGB", 85, 600);
+  
   myUI.addSlider("Contrast", 200, 565);
+  
+  myUI.addSlider("Angle of Arc", 200, 600);
   
   myUI.addPlainButton("Colour Picker", 310, 565);
   
@@ -49,7 +54,9 @@ void settings() {
   
   myUI.addSlider("Line Weight", 510, 565);
   
-  myUI.addPlainButton("RGB & Sat", 5, 530);
+  myUI.addSlider("Scale Shape", 510, 600);
+  
+  myUI.addRadioButton("Move", 5, 530,"group1");
   
   myUI.addPlainButton("Quit", 5, 565);
   
@@ -167,7 +174,7 @@ void handleUIEvent(UIEventData eventData){
   for(int y = 0; y < imageHeight; y++){
     for(int x = 0; x < imageWidth; x++){
     
-    color c = convolution(x, y, blur_matrix, matrixSize, myImage);
+    color c = drawingList.convolution(x, y, drawingList.blur_matrix, matrixSize, myImage);
     
     outputImage.set(x,y,c);
     }
@@ -183,7 +190,7 @@ void handleUIEvent(UIEventData eventData){
   for(int y = 0; y < imageHeight; y++){
     for(int x = 0; x < imageWidth; x++){
     
-    color c = convolution(x, y, sharpen_matrix, matrixSize, myImage);
+    color c = drawingList.convolution(x, y, drawingList.sharpen_matrix, matrixSize, myImage);
     
     outputImage.set(x,y,c);
     }
@@ -199,7 +206,7 @@ void handleUIEvent(UIEventData eventData){
   for(int y = 0; y < imageHeight; y++){
     for(int x = 0; x < imageWidth; x++){
     
-    color c = convolution(x, y, edge_matrix, matrixSize, myImage);
+    color c = drawingList.convolution(x, y, drawingList.edge_matrix, matrixSize, myImage);
     
     outputImage.set(x,y,c);
     }
@@ -215,12 +222,18 @@ void handleUIEvent(UIEventData eventData){
   for(int y = 0; y < imageHeight; y++){
     for(int x = 0; x < imageWidth; x++){
     
-    color c = convolution(x, y, gaussianblur_matrix, matrixSize, myImage);
+    color c = drawingList.convolution(x, y, drawingList.gaussianblur_matrix, matrixSize, myImage);
     
     outputImage.set(x,y,c);
     }
   }
 }
+
+  if(eventData.eventIsFromWidget("Angle of Arc")){
+        float angles = (float)(eventData.sliderValue*2*PI);
+        drawingList.ChangeAngle(angles);
+        println(angles);
+      }
   
     if( toolMode.equals("Brightness") ) {
     
@@ -236,10 +249,10 @@ void handleUIEvent(UIEventData eventData){
         for(int n = 0; n < 256; n++) {
           
           float px = n/255.0f;  // p ranges between 0...1
-          float val = changeBrightness(px,SliderValue);
+          float val = drawingList.changeBrightness(px,SliderValue);
           lut[n] = (int)(val*255);
         }
-        outputImage = applyPointProcessing(lut,lut,lut, myImage);
+        outputImage = drawingList.applyPointProcessing(lut,lut,lut, myImage);
         outputImage.loadPixels();
    }
    
@@ -256,17 +269,20 @@ void handleUIEvent(UIEventData eventData){
               for(int n = 0; n < 256; n++) {
                 
                 float v = n/255.0f;  // p ranges between 0...1
-                float val = contrast(v,SliderValue);
+                float val = drawingList.contrast(v,SliderValue);
                 lut[n] = (int)(val*255);
               }
-            outputImage = applyPointProcessing(lut,lut,lut, myImage);
+            outputImage = drawingList.applyPointProcessing(lut,lut,lut, myImage);
             outputImage.loadPixels();
    }
     
-   if( toolMode.equals("RGB & Sat") ) {
+   if( toolMode.equals("RGB") ) {
      
      outputImage = myImage.copy();
-     myImage.loadPixels();
+     
+    float RGBSliderValue = myUI.getSliderValue("RGB");
+    System.out.println(RGBSliderValue);
+          
      for (int y = 0; y < imageHeight; y++) {
        for (int x = 0; x < imageWidth; x++){
         
@@ -275,28 +291,20 @@ void handleUIEvent(UIEventData eventData){
         int g = (int) (green(thisPix));
         int b = (int) (blue(thisPix));
         
-        float[] hsv = RGBtoHSV(r,g,b);
+        float[] hsv = drawingList.RGBtoHSV(r,g,b);
         float hue = hsv[0];
         float sat = hsv[1];
         float val = hsv[2];
 
-        hue += 30;
+        hue += RGBSliderValue * 300;
         if( hue < 0 ) hue += 360;
         if( hue > 360 ) hue -= 360;
         
-        sat += 1;
-        if( sat < 0 ) sat += 0;
-        if( sat > 1 ) sat -= 1;
-        
-        val += 0.1;
-        if( val < 0 ) val += 1;
-        if( val > 1 ) val -= 0;
-        
-        color newRGB =   HSVtoRGB(hue,  sat,  val);
-        myImage.set(x,y, newRGB);
+        color newRGB =  drawingList.HSVtoRGB(hue,  sat,  val);
         outputImage.set(x,y, newRGB);
        }   
      }
+     
   }
 
   
@@ -337,11 +345,22 @@ void handleUIEvent(UIEventData eventData){
      drawingList.handleMouseDrawEvent(toolMode,eventData.mouseEventType, p);
   }
   
+  if(toolMode.equals("Scale Shape")) {
+    int ScaleSliderValue = ((int)(myUI.getSliderValue("Scale Shape") * 10)-5);
+    System.out.println(ScaleSliderValue);
+    drawingList.tryScale(eventData.mouseEventType, p, ScaleSliderValue);
+  }
+
+  
   if( toolMode.equals("Delete") ) {    
     drawingList.tryDelete();
     myUI.setRadioButtonOff("group1");
     }
     
+  if( toolMode.equals("Move") ) {
+    drawingList.tryMove(eventData.mouseEventType, p);
+  }
+  
   if( toolMode.equals("Fill") ) {    
     drawingList.fillShape(theColor);
     }
@@ -360,9 +379,7 @@ void handleUIEvent(UIEventData eventData){
   }
     
    
-  //if( toolMode.equals("Commit") ) {
-  //   myImage = outputImage;
-  //}
+
     
   if( toolMode.equals("Quit") ) {    
      exit();
