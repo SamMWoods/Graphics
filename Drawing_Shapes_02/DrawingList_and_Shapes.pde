@@ -19,7 +19,7 @@ class DrawnShape {
   public  int lineThickness =1;
   public boolean filled = true;
   public color fillColor = color(127, 127, 127);
-  float angle = HALF_PI;
+  float arcAngle = QUARTER_PI;
 
   // used to define the shape bounds during drawing and after
   PVector shapeStartPoint, shapeEndPoint;
@@ -86,14 +86,14 @@ class DrawnShape {
     if ( shapeType.equals("draw rect")) rect(x1, y1, w, h);
     if ( shapeType.equals("draw circle")) ellipse(x1+ w/2, y1 + h/2, w, h);
     if ( shapeType.equals("draw line")) line(x1, y1, x2, y2);
-    if (shapeType.equals("draw arc")) arc(x1, y1, w, h,0, angle);
+    if (shapeType.equals("draw arc")) arc(x1, y1, w, h,0, arcAngle);
     
 
   }
   
   
   public void ChangeAngle(float angles){
-    angle = angles;
+    arcAngle= angles;
   }
   
    public void translate(float newx, float newy){
@@ -170,6 +170,7 @@ class DrawingList {
     for(DrawnShape s : shapeList){
       if(s.isSelected){
         shapeList.remove(s);
+                s.drawMe();
         break;
        }
      }

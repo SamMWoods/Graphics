@@ -28,17 +28,17 @@ void settings() {
   myUI = new SimpleUI();
   drawingList = new DrawingList();
   
-  myUI.addPlainButton("load file", 5,0);
-  myUI.addPlainButton("save file", 5,35);
+  myUI.addPlainButton("load IMG", 5,0);
+  myUI.addPlainButton("save IMG", 5,35);
 
   ButtonBaseClass  rectButton = myUI.addRadioButton("draw rect", 5, 70, "group1");
   myUI.addRadioButton("draw circle", 5, 105, "group1");
   myUI.addRadioButton("draw line", 5, 140, "group1");
-  myUI.addRadioButton("draw arc", 5, 450, "group1");
+  myUI.addRadioButton("draw arc", 5, 175, "group1");
   
-  myUI.addRadioButton("select", 5, 175, "group1");
+  myUI.addRadioButton("select", 5, 210, "group1");
   
-  myUI.addPlainButton("Delete", 5, 210);
+  myUI.addPlainButton("Delete", 5, 280);
   
   myUI.addSlider("Brightness", 85, 565);
   
@@ -46,7 +46,7 @@ void settings() {
   
   myUI.addSlider("Contrast", 200, 565);
   
-  myUI.addSlider("Angle of Arc", 200, 600);
+  myUI.addSlider("Arc Angle", 200, 600);
   
   myUI.addPlainButton("Colour Picker", 310, 565);
   
@@ -56,14 +56,14 @@ void settings() {
   
   myUI.addSlider("Scale Shape", 510, 600);
   
-  myUI.addRadioButton("Move", 5, 530,"group1");
+  myUI.addRadioButton("Move", 5, 245,"group1");
   
-  myUI.addPlainButton("Quit", 5, 565);
+  myUI.addPlainButton("Quit", 5, 600);
   
-  myUI.addMenu("Image Manipulation", 5, 245, menu1Items);
+  myUI.addMenu("Image Manipulation", 5, 315, menu1Items);
   
   // set the current mode to "draw rect"
-  rectButton.selected = true;
+  //rectButton.selected = true;
   
   toolMode = rectButton.UILabel;
 
@@ -107,7 +107,7 @@ void handleUIEvent(UIEventData eventData){
   //
   
   // this responds to the "load file" button and opens the file-load dialogue
-  if(eventData.eventIsFromWidget("load file")){
+  if(eventData.eventIsFromWidget("load IMG")){
     myUI.openFileLoadDialog("load an image");
   }
   
@@ -139,7 +139,7 @@ void handleUIEvent(UIEventData eventData){
   //
   
   // this responds to the "save file" button and opens the file-save dialogue
-  if(eventData.eventIsFromWidget("save file")){
+  if(eventData.eventIsFromWidget("save IMG")){
     myUI.openFileSaveDialog("save an image");
   }
   
@@ -229,10 +229,10 @@ void handleUIEvent(UIEventData eventData){
   }
 }
 
-  if(eventData.eventIsFromWidget("Angle of Arc")){
-        float angles = (float)(eventData.sliderValue*2*PI);
-        drawingList.ChangeAngle(angles);
-        println(angles);
+  if(eventData.eventIsFromWidget("Arc Angle")){
+        float newAngle = (float)(eventData.sliderValue*2*PI);
+        drawingList.ChangeAngle(newAngle);
+        println(newAngle);
       }
   
     if( toolMode.equals("Brightness") ) {
